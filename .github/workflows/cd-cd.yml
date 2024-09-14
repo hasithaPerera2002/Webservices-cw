@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
 
 jobs:
   build-and-push:
@@ -29,7 +29,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build -t ${{ secrets.AWS_ECR_REPOSITORY }} -f Dockerfile .
+        docker build -t ${{ secrets.AWS_ECR_REPOSITORY }} -f middleware/Dockerfile .
 
     - name: Tag the Docker image
       run: |
@@ -47,17 +47,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Kubernetes CLI (kubectl)
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'v1.31.0'
-
-    - name: Configure kubectl
-      env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+    - name: Install AWS CLI
       run: |
-        mkdir -p $HOME/.kube
-        echo "$KUBECONFIG" | base64 --decode > $HOME/.kube/config
+        sudo apt-get update
+        sudo apt-get install -y awscli
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.31.0/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name my-cluster
 
     - name: Deploy to Kubernetes
       run: |
