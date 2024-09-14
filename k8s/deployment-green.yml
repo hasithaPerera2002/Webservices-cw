@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-green
+  labels:
+    app: my-app-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app-green
+  template:
+    metadata:
+      labels:
+        app: my-app-green
+    spec:
+      containers:
+      - name: my-app
+        image: my-app-image:latest # New version of your application
+        ports:
+        - containerPort: 80
