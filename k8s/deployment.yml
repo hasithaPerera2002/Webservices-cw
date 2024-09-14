@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app-green 
+  name: my-app-green
 spec:
   replicas: 2
   selector:
@@ -24,18 +24,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app-green
+  name: my-app-blue
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: my-app
-      version: green
+      version: blue
   template:
     metadata:
       labels:
         app: my-app
-        version: green
+        version: blue
     spec:
       containers:
         - name: my-app
@@ -43,3 +43,4 @@ spec:
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
+---
