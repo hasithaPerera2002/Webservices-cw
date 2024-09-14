@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: my-app-image:latest # New version of your application
+        image: my-app-image:v.1.0.0 # New version of your application
         ports:
         - containerPort: 80

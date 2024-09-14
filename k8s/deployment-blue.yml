@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: my-app-image:latest # as in blue deployment we are using the same image as in the main deployment but we need to put stable version of the image
+        image: my-app-image:v.1.0.0 # as in blue deployment we are using the same image as in the main deployment but we need to put stable version of the image
         ports:
         - containerPort: 80
