@@ -1,30 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app-blue # For Blue environment
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: my-app
-      version: blue
-  template:
-    metadata:
-      labels:
-        app: my-app
-        version: blue
-    spec:
-      containers:
-        - name: my-app
-          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
-          ports:
-            - containerPort: 8080
-          imagePullPolicy: Always
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app-green # For Green environment
+  name: my-app-green-new # New name to avoid selector conflict
 spec:
   replicas: 2
   selector:
@@ -39,7 +16,30 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
+          image: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: my-app
+        version: green
+    spec:
+      containers:
+        - name: my-app
+          image: $ECR_REGISTRY/$ECR_REPOSITORY:latest
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
