@@ -1,19 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app 
+  name: my-app-blue # For Blue environment
 spec:
-  replicas: 2  
+  replicas: 2
   selector:
     matchLabels:
-      app: my-app 
+      app: my-app
+      version: blue
   template:
     metadata:
       labels:
-        app: my-app  
+        app: my-app
+        version: blue
     spec:
       containers:
-      - name: my-app  
-        image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:v.1.0.1 
-        ports:
-        - containerPort: 3000  
+        - name: my-app
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-green # For Green environment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: my-app
+        version: green
+    spec:
+      containers:
+        - name: my-app
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:${{ github.sha }}
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always

@@ -1,65 +1,75 @@
-name: Build and Push Docker Image to ECR
+name: node-build-and-deploy
 
 on:
   push:
-    branches:
-      - main  # Trigger the action on push to the main branch
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+     
+      - uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+     
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' 
 
-    - name: Setting up AWS ECR Details
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
+    
+      - name: Install dependencies
+        run: npm install
+
+    
+      - name: Build the project
+        run: npm run build 
+
+      
+      - name: Setting up AWS ECR Details
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-1"  # Specify the region directly here
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Log in to Amazon ECR
-      run: |
-        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+     
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build the Docker image
-      run: |
-        docker build -t ${{ secrets.AWS_ECR_REPOSITORY }} -f Dockerfile .
+     
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}  
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-    - name: Tag the Docker image
-      run: |
-        docker tag ${{ secrets.AWS_ECR_REPOSITORY }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:latest
+      - name: Set up Kubernetes CLI
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.31.0'
 
-    - name: Push the Docker image to ECR
-      run: |
-        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:v.1.0.0
+   
+      - name: Configure kubectl
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          mkdir -p $HOME/.kube
+          echo "$KUBECONFIG" | base64 --decode > $HOME/.kube/config
 
-    - name: Set up Kubernetes CLI
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'v1.31.0' # Obtained from https://storage.googleapis.com/kubernetes-release/release/stable.txt. Make sure to add a 'v' before the version number.
 
-    - name: Configure kubectl
-      env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
-      run: |
-        # Create the .kube directory if it doesn't exist
-        mkdir -p $HOME/.kube
-        
-        # Debugging: Print the entire KUBECONFIG value for verification
-        echo "Full KUBECONFIG value:"
-        echo "$KUBECONFIG"
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl set image deployment/my-app-blue my-app=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+          kubectl set image deployment/my-app-green my-app=$ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-        # Decode and write the kubeconfig file
-        echo "$KUBECONFIG" | base64 --decode > $HOME/.kube/config
-
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f k8s/deployment.yml
-        kubectl apply -f k8s/service.yml
-
+    
