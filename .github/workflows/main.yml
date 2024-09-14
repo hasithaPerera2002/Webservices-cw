@@ -11,16 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     
       - uses: actions/checkout@v4
 
-     
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' 
+          node-version: '18'
 
-    
       - name: Install dependencies
         run: |
           cd middleware
@@ -31,7 +28,6 @@ jobs:
           cd middleware
           npm run build
 
-      
       - name: Setting up AWS ECR Details
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -39,17 +35,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
 
-     
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-     
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}  
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build the Docker image with the commit SHA tag
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${IMAGE_TAG} .
@@ -60,12 +54,12 @@ jobs:
           # Optionally, push the latest tag as well
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${IMAGE_TAG} $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            - name: Set up Kubernetes CLI
-              uses: azure/setup-kubectl@v4
-              with:
-                version: 'v1.31.0'
 
-   
+      - name: Set up Kubernetes CLI
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.31.0'
+
       - name: Configure kubectl
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
@@ -73,12 +67,9 @@ jobs:
           mkdir -p $HOME/.kube
           echo "$KUBECONFIG" | base64 --decode > $HOME/.kube/config
 
-
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yml
           kubectl apply -f k8s/service.yml
           kubectl set image deployment/my-app-blue my-app=$ECR_REGISTRY/$ECR_REPOSITORY:latest
           kubectl set image deployment/my-app-green my-app=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-    
