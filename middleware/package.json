@@ -1,13 +1,13 @@
 {
-  "name": "data-manager-middleware",
+  "name": "coinbase",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon index.ts",
+    "dev": "nodemon index.js",
     "watch": "tsc -w",
-    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
+    "build": "esbuild index.js --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
   },
   "author": "",
   "license": "ISC",
