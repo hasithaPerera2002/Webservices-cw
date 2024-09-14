@@ -29,7 +29,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build -t ${{ secrets.AWS_ECR_REPOSITORY }} -f middleware/Dockerfile .
+        docker build -t ${{ secrets.AWS_ECR_REPOSITORY }} -f Dockerfile .
 
     - name: Tag the Docker image
       run: |
