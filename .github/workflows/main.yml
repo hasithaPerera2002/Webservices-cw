@@ -63,8 +63,3 @@ jobs:
         kubectl apply -f k8s/deployment.yml
         kubectl apply -f k8s/service.yml
 
-    - name: Install Newman
-      run: npm install -g newman
-
-    - name: Run Newman Tests
-      run: newman run path/to/your/postman_collection.json
