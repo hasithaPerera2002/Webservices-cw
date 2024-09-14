@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:${IMAGE_TAG}
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:${IMAGE_TAG}
           ports:
             - containerPort: 8080
           imagePullPolicy: Always

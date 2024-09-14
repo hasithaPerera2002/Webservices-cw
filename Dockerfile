@@ -1,24 +1,13 @@
-FROM node:18.16.0-alpine3.17
+FROM node:18
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-
-WORKDIR /home/node/app
+WORKDIR /app
 
 COPY package*.json ./
 
-USER node
-
-COPY --chown=node:node . .
-
-WORKDIR /home/node/app/middleware
-
-RUN ls -la
-
 RUN npm install
 
-RUN npm run build
+COPY . .
 
 EXPOSE 3000
-
 
 CMD ["npm", "start"]
