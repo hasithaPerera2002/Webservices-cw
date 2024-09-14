@@ -22,11 +22,14 @@ jobs:
 
     
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd middleware
+          npm install
 
-    
       - name: Build the project
-        run: npm run build 
+        run: |
+          cd middleware
+          npm run build
 
       
       - name: Setting up AWS ECR Details
