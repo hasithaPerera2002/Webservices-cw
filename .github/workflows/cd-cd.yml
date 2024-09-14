@@ -67,7 +67,7 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-east-1 --name my-cluster
+        aws eks update-kubeconfig --region us-east-1 --name hasitha
 
     - name: Deploy to Kubernetes
       run: |
