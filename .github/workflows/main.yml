@@ -38,3 +38,33 @@ jobs:
     - name: Push the Docker image to ECR
       run: |
         docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:latest
+
+    - name: Set up Kubernetes CLI
+      uses: azure/setup-kubectl@v4
+      with:
+        version: 'v1.31.0' # Obtained from https://storage.googleapis.com/kubernetes-release/release/stable.txt. Make sure to add a 'v' before the version number.
+
+    - name: Configure kubectl
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: |
+        # Create the .kube directory if it doesn't exist
+        mkdir -p $HOME/.kube
+        
+        # Debugging: Print the entire KUBECONFIG value for verification
+        echo "Full KUBECONFIG value:"
+        echo "$KUBECONFIG"
+
+        # Decode and write the kubeconfig file
+        echo "$KUBECONFIG" | base64 --decode > $HOME/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Run Newman Tests
+      run: newman run path/to/your/postman_collection.json
