@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: my-app  
-        image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:v.1.0.0  
+        image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:v.1.0.1 
         ports:
         - containerPort: 3000  
