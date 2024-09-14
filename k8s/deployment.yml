@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:${IMAGE_TAG}
+          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:latest
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:${IMAGE_TAG}
+          image: 058264317285.dkr.ecr.us-east-1.amazonaws.com/ijse-web-final:latest
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
