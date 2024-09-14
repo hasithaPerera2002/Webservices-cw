@@ -51,13 +51,19 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}  
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          # Build the Docker image with the commit SHA tag
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${IMAGE_TAG} .
+          
+          # Push the Docker image with the commit SHA tag
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${IMAGE_TAG}
+          
+          # Optionally, push the latest tag as well
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${IMAGE_TAG} $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-      - name: Set up Kubernetes CLI
-        uses: azure/setup-kubectl@v4
-        with:
-          version: 'v1.31.0'
+            - name: Set up Kubernetes CLI
+              uses: azure/setup-kubectl@v4
+              with:
+                version: 'v1.31.0'
 
    
       - name: Configure kubectl
